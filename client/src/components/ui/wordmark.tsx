@@ -1,12 +1,12 @@
 import { Image, StyleSheet } from "react-native";
 
-const HEIGHT = 48;
+const HEIGHT = 40;
 
 export function Wordmark() {
   return (
     <Image
-      source={require("../../../assets/images/sidequack-wordmark-cream.png")}
-      accessibilityLabel="SideQuack"
+      source={require("../../../assets/images/couchduck-wordmark-cream.png")}
+      accessibilityLabel="CouchDuck"
       style={styles.wordmark}
     />
   );
@@ -14,7 +14,7 @@ export function Wordmark() {
 
 const styles = StyleSheet.create({
   wordmark: {
-    width: (HEIGHT * 1292) / 240,
+    width: (HEIGHT * 1477) / 202,
     height: HEIGHT,
     alignSelf: "flex-start",
   },
