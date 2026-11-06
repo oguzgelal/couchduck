@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, type ComponentProps } from "react";
 import { findNodeHandle, ScrollView, StyleSheet, TextInput, View, type LayoutChangeEvent } from "react-native";
 import { Check, Plus } from "lucide-react-native";
 import { space } from "../../theme";
@@ -13,16 +13,16 @@ type PillPickerProps = {
   selected: string[];
   onChange: (selected: string[]) => void;
   addLabel?: string;
+  nextFocusDown?: number;
 };
 
-export function PillPicker({ options, selected, onChange, addLabel }: PillPickerProps) {
-  const pillRefs = useRef(new Map<string, View | null>());
+export function PillPicker({ options, selected, onChange, addLabel, nextFocusDown }: PillPickerProps) {
   const inputRef = useRef<TextInput>(null);
   const [layouts, setLayouts] = useState<Record<string, PillLayout>>({});
   const [draft, setDraft] = useState("");
   const pills = [...options, ...selected.filter((choice) => !options.includes(choice))];
   const keys = addLabel ? [...pills, ADD_KEY] : pills;
-  const neighbors = pillNeighbors(keys.flatMap((key) => layouts[key] ?? []));
+  const neighbors = pillNeighbors(keys.flatMap((key) => layouts[key] ?? []), nextFocusDown);
 
   const toggle = (option: string) =>
     onChange(selected.includes(option) ? selected.filter((choice) => choice !== option) : [...selected, option]);
@@ -35,17 +35,10 @@ export function PillPicker({ options, selected, onChange, addLabel }: PillPicker
     if (!selected.includes(option)) onChange([...selected, option]);
   };
 
-  const pillProps = (key: string) => {
+  const gridProps = (key: string) => {
     const tag = layouts[key]?.tag;
     return {
-      ref: (pill: View | null) => {
-        pillRefs.current.set(key, pill);
-      },
-      onLayout: ({ nativeEvent: { layout } }: LayoutChangeEvent) => {
-        const pillTag = findNodeHandle(pillRefs.current.get(key) ?? null);
-        if (pillTag === null) return;
-        setLayouts((current) => ({ ...current, [key]: { x: layout.x, y: layout.y, width: layout.width, tag: pillTag } }));
-      },
+      onMeasure: (layout: PillLayout) => setLayouts((current) => ({ ...current, [key]: layout })),
       ...(tag === undefined ? undefined : neighbors.get(tag)),
     };
   };
@@ -56,19 +49,19 @@ export function PillPicker({ options, selected, onChange, addLabel }: PillPicker
         {pills.map((option) => {
           const isSelected = selected.includes(option);
           return (
-            <Chip
+            <GridChip
               key={option}
               label={option}
               icon={isSelected ? Check : undefined}
               selected={isSelected}
               hasTVPreferredFocus={option === (selected[0] ?? pills[0])}
               onPress={() => toggle(option)}
-              {...pillProps(option)}
+              {...gridProps(option)}
             />
           );
         })}
         {addLabel && (
-          <Chip label={addLabel} icon={Plus} onPress={() => inputRef.current?.focus()} {...pillProps(ADD_KEY)} />
+          <GridChip label={addLabel} icon={Plus} onPress={() => inputRef.current?.focus()} {...gridProps(ADD_KEY)} />
         )}
       </ScrollView>
       {addLabel && (
@@ -82,6 +75,21 @@ export function PillPicker({ options, selected, onChange, addLabel }: PillPicker
       )}
     </>
   );
+}
+
+type GridChipProps = Omit<ComponentProps<typeof Chip>, "ref" | "onLayout"> & {
+  onMeasure: (layout: PillLayout) => void;
+};
+
+function GridChip({ onMeasure, ...chipProps }: GridChipProps) {
+  const chipRef = useRef<View>(null);
+
+  const handleLayout = ({ nativeEvent: { layout } }: LayoutChangeEvent) => {
+    const tag = findNodeHandle(chipRef.current);
+    if (tag !== null) onMeasure({ x: layout.x, y: layout.y, width: layout.width, tag });
+  };
+
+  return <Chip ref={chipRef} onLayout={handleLayout} {...chipProps} />;
 }
 
 const styles = StyleSheet.create({

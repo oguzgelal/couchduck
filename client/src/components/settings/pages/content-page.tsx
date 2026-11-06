@@ -22,8 +22,9 @@ export function ContentPage({ subpage, returnFocusTo, onOpenSubpage, onCloseSubp
           description: "What you like to watch",
           value: settings && (settings.formats?.join(", ") || "Anything"),
           multiple: true,
-          picker: (
+          picker: (focus) => (
             <PillPicker
+              {...focus}
               options={FORMATS}
               selected={settings?.formats ?? []}
               onChange={(formats) => update({ formats })}
@@ -36,8 +37,9 @@ export function ContentPage({ subpage, returnFocusTo, onOpenSubpage, onCloseSubp
           description: "Picks lean towards these",
           value: settings && (settings.genres?.join(", ") || "Anything"),
           multiple: true,
-          picker: (
+          picker: (focus) => (
             <PillPicker
+              {...focus}
               options={GENRES}
               selected={settings?.genres ?? []}
               onChange={(genres) => update({ genres })}
@@ -51,8 +53,9 @@ export function ContentPage({ subpage, returnFocusTo, onOpenSubpage, onCloseSubp
           description: "Couch Duck steers clear of these",
           value: settings && (settings.dislikes?.join(", ") || "Nothing"),
           multiple: true,
-          picker: (
+          picker: (focus) => (
             <PillPicker
+              {...focus}
               options={DISLIKES}
               selected={settings?.dislikes ?? []}
               onChange={(dislikes) => update({ dislikes })}

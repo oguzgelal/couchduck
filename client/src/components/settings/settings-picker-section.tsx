@@ -1,15 +1,19 @@
-import type { ReactNode } from "react";
-import { StyleSheet } from "react-native";
+import { useCallback, useState, type ReactNode } from "react";
+import { findNodeHandle, StyleSheet, View } from "react-native";
 import { Button } from "../ui/button";
 import { SettingsRow } from "./settings-row";
 import { SettingsSection } from "./settings-section";
+
+export type SettingsPickerFocus = {
+  nextFocusDown?: number;
+};
 
 export type SettingsPickerRow = {
   id: string;
   title: string;
   description: string;
   value?: string;
-  picker: ReactNode;
+  picker: (focus: SettingsPickerFocus) => ReactNode;
   multiple?: boolean;
 };
 
@@ -32,6 +36,10 @@ export function SettingsPickerSection({
   onOpenSubpage,
   onCloseSubpage,
 }: SettingsPickerSectionProps) {
+  const [doneTag, setDoneTag] = useState<number>();
+  const doneRef = useCallback((done: View | null) => {
+    if (done) setDoneTag(findNodeHandle(done) ?? undefined);
+  }, []);
   const openRow = rows.find((row) => row.id === subpage);
 
   if (openRow) {
@@ -40,8 +48,10 @@ export function SettingsPickerSection({
         title={openRow.title}
         description={openRow.multiple ? `${openRow.description}. Pick as many as you like.` : openRow.description}
       >
-        {openRow.picker}
-        {openRow.multiple && <Button label="Done" variant="primary" onPress={onCloseSubpage} style={styles.done} />}
+        {openRow.picker({ nextFocusDown: openRow.multiple ? doneTag : undefined })}
+        {openRow.multiple && (
+          <Button ref={doneRef} label="Done" variant="primary" onPress={onCloseSubpage} style={styles.done} />
+        )}
       </SettingsSection>
     );
   }

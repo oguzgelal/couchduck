@@ -1,8 +1,10 @@
+import type { Ref } from "react";
 import {
   Animated,
   Pressable,
   StyleSheet,
   Text,
+  View,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
@@ -10,6 +12,7 @@ import { useFocusScale } from "../../hooks/use-focus-scale";
 import { colors, radius, shadows, space, typography } from "../../theme";
 
 type ButtonProps = {
+  ref?: Ref<View>;
   label: string;
   onPress?: () => void;
   variant?: "primary" | "secondary" | "danger";
@@ -18,6 +21,7 @@ type ButtonProps = {
 };
 
 export function Button({
+  ref,
   label,
   onPress,
   variant = "secondary",
@@ -29,6 +33,7 @@ export function Button({
 
   return (
     <Pressable
+      ref={ref}
       onPress={onPress}
       hasTVPreferredFocus={hasTVPreferredFocus}
       style={style}

@@ -28,7 +28,7 @@ export function AvailabilityPage({ subpage, returnFocusTo, onOpenSubpage, onClos
           title: "Country or region",
           description: "What’s streaming where you are",
           value: settings && (settings.country ?? "Not set"),
-          picker: (
+          picker: () => (
             <ChoicePickerCountry selected={settings?.country} onSelect={(country) => selectAndClose({ country })} />
           ),
         },
@@ -37,7 +37,7 @@ export function AvailabilityPage({ subpage, returnFocusTo, onOpenSubpage, onClos
           title: "Language",
           description: "How Couch Duck talks to you",
           value: settings && (settings.language ?? "Not set"),
-          picker: (
+          picker: () => (
             <ChoicePickerLanguage selected={settings?.language} onSelect={(language) => selectAndClose({ language })} />
           ),
         },
@@ -47,8 +47,9 @@ export function AvailabilityPage({ subpage, returnFocusTo, onOpenSubpage, onClos
           description: "Picks come from these first",
           value: settings && (settings.streamingServices?.join(", ") || "None"),
           multiple: true,
-          picker: (
+          picker: (focus) => (
             <PillPicker
+              {...focus}
               options={STREAMING_SERVICES}
               selected={settings?.streamingServices ?? []}
               onChange={(streamingServices) => update({ streamingServices })}
