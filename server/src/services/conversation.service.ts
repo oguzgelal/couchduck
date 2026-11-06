@@ -53,6 +53,10 @@ class ConversationService {
     };
   }
 
+  async clear(userId: string) {
+    await prisma.conversation.deleteMany({ where: { userId } });
+  }
+
   async save(userId: string, id: string, data: ConversationData) {
     const json = data as Prisma.InputJsonObject;
     const { count } = await prisma.conversation.updateMany({

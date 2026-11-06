@@ -37,6 +37,7 @@ model Person {
   id            String         @id @default(uuid(7))
   name          String
   metadata      Json           @default("{}")
+  preferences   Json           @default("{}")
   userId        String
   user          User           @relation("UserPersons", fields: [userId], references: [id], onDelete: Cascade)
   activeFor     User?          @relation("ActivePerson")

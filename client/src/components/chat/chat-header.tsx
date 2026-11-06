@@ -1,13 +1,28 @@
-import { StyleSheet, View } from "react-native";
-import { Button } from "../ui/button";
+import { StyleSheet, TVFocusGuideView } from "react-native";
+import { Settings } from "lucide-react-native";
+import { Chip } from "../ui/chip";
 import { Wordmark } from "../ui/wordmark";
 
-export function ChatHeader({ onSignOut }: { onSignOut: () => void }) {
+type ChatHeaderProps = {
+  composerTag?: number | null;
+  onOpenSettings: () => void;
+};
+
+export function ChatHeader({ composerTag, onOpenSettings }: ChatHeaderProps) {
+  const exitFocusTo = composerTag ?? undefined;
+
   return (
-    <View style={styles.header}>
+    <TVFocusGuideView autoFocus style={styles.header}>
       <Wordmark />
-      <Button label="Sign out" onPress={onSignOut} />
-    </View>
+      <Chip
+        label="Settings"
+        icon={Settings}
+        onPress={onOpenSettings}
+        nextFocusDown={exitFocusTo}
+        nextFocusLeft={exitFocusTo}
+        nextFocusRight={exitFocusTo}
+      />
+    </TVFocusGuideView>
   );
 }
 

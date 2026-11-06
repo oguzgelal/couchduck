@@ -3,7 +3,7 @@ import { Animated } from "react-native";
 import { motion } from "../theme";
 import { useReduceMotion } from "./use-reduce-motion";
 
-export function useFocusScale() {
+export function useFocusScale(focusScale = motion.focusScale) {
   const [focused, setFocused] = useState(false);
   const [scale] = useState(() => new Animated.Value(1));
   const reduceMotion = useReduceMotion();
@@ -24,14 +24,14 @@ export function useFocusScale() {
     focusHandlers: {
       onFocus: () => {
         setFocused(true);
-        animateTo(motion.focusScale);
+        animateTo(focusScale);
       },
       onBlur: () => {
         setFocused(false);
         animateTo(1);
       },
       onPressIn: () => animateTo(motion.pressScale),
-      onPressOut: () => animateTo(focused ? motion.focusScale : 1),
+      onPressOut: () => animateTo(focused ? focusScale : 1),
     },
   };
 }

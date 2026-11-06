@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent, useRef, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { findNodeHandle, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useChat, type UIMessage } from "@tanstack/ai-react";
 import { MessageSquarePlus, RotateCcwClock } from "lucide-react-native";
 import { chatConnection } from "../../lib/chat-connection";
@@ -22,7 +22,7 @@ type ChatConversationProps = {
   onSave: (messages: UIMessage[]) => void;
   onError: () => void;
   onOpenHistory: () => void;
-  onSignOut: () => void;
+  onOpenSettings: () => void;
 };
 
 export function ChatConversation({
@@ -30,7 +30,7 @@ export function ChatConversation({
   onSave,
   onError,
   onOpenHistory,
-  onSignOut,
+  onOpenSettings,
 }: ChatConversationProps) {
   const [input, setInput] = useState("");
   const scrollRef = useRef<ScrollView>(null);
@@ -90,6 +90,11 @@ export function ChatConversation({
   };
 
   const isEmpty = messages.length === 0;
+
+  const [composerTag, setComposerTag] = useState<number | null>(null);
+  useEffect(() => {
+    setComposerTag(findNodeHandle(composerRef.current));
+  }, [isEmpty, isLoading]);
   const isThinking = isLoading && messages.at(-1)?.role === "user";
 
   useTVBack(() => {
@@ -128,7 +133,7 @@ export function ChatConversation({
   if (isEmpty) {
     return (
       <View style={styles.container}>
-        <ChatHeader onSignOut={onSignOut} />
+        <ChatHeader composerTag={composerTag} onOpenSettings={onOpenSettings} />
         <ChatWelcome onSuggestion={sendMessage} composer={composerBar} />
         {!isComposerFocused && <ComposerHint />}
       </View>
@@ -137,7 +142,7 @@ export function ChatConversation({
 
   return (
     <View style={styles.container}>
-      <ChatHeader onSignOut={onSignOut} />
+      <ChatHeader composerTag={composerTag} onOpenSettings={onOpenSettings} />
       <ScrollView
         ref={scrollRef}
         style={styles.messages}

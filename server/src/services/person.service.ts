@@ -1,11 +1,22 @@
 import { prisma } from "../lib/db.js";
 import { memoriesSchema, type Memories } from "../schemas/person.schema.js";
+import { preferencesSchema, type Preferences, type SettingsUpdate } from "../schemas/settings.schema.js";
 import { ServiceError } from "./service-error.js";
 
 export type ActivePerson = {
   id: string;
   name: string;
   memories: Memories;
+  preferences: Preferences;
+};
+
+const PREFERENCE_LABELS: Record<keyof Preferences, string> = {
+  country: "Country",
+  language: "Preferred language",
+  streamingServices: "Streaming services they have",
+  formats: "Formats they like",
+  genres: "Favorite genres",
+  dislikes: "Wants to avoid",
 };
 
 class PersonService {
@@ -43,7 +54,23 @@ class PersonService {
       id: activePerson.id,
       name: activePerson.name,
       memories: memoriesSchema.parse(activePerson.metadata),
+      preferences: preferencesSchema.parse(activePerson.preferences),
     };
+  }
+
+  async getSettings(userId: string) {
+    const { name, preferences } = await this.getActive(userId);
+    return { name, ...preferences };
+  }
+
+  async updateSettings(userId: string, { name, ...update }: SettingsUpdate) {
+    const person = await this.getActive(userId);
+    const preferences = { ...person.preferences, ...update };
+    await prisma.person.update({
+      where: { id: person.id },
+      data: { name, preferences },
+    });
+    return { name: name ?? person.name, ...preferences };
   }
 
   // Atomic jsonb updates: a read-modify-write would let parallel tool calls overwrite each other.
@@ -62,14 +89,24 @@ class PersonService {
       WHERE "id" = ${personId}`;
   }
 
-  describe({ name, memories }: ActivePerson) {
+  describe({ name, memories, preferences }: ActivePerson) {
+    const settings = Object.entries(preferences)
+      .map(([key, value]) => [PREFERENCE_LABELS[key as keyof Preferences], [value].flat().join(", ")])
+      .filter(([, value]) => value)
+      .map(([label, value]) => `${label}: ${value}`);
     const facts = Object.values(memories).map(
       ({ key, fact }) => `- ${key}: ${fact}`,
     );
     if (facts.length === 0) {
       facts.push("(nothing yet)");
     }
-    return `About the person you're talking to:\nName: ${name}\nMemories:\n${facts.join("\n")}`;
+    return [
+      "About the person you're talking to:",
+      `Name: ${name}`,
+      ...settings,
+      "Memories:",
+      ...facts,
+    ].join("\n");
   }
 }
 

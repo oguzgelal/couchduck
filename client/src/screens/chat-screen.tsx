@@ -9,10 +9,10 @@ import { PaywallScreen } from "./paywall-screen";
 
 type ChatScreenProps = {
   onOpenHistory: () => void;
-  onSignOut: () => void;
+  onOpenSettings: () => void;
 };
 
-export function ChatScreen({ onOpenHistory, onSignOut }: ChatScreenProps) {
+export function ChatScreen({ onOpenHistory, onOpenSettings }: ChatScreenProps) {
   const conversationId = useConversationStore((state) => state.conversationId);
   const usage = useAiUsage();
   const conversation = useConversation(conversationId);
@@ -42,7 +42,7 @@ export function ChatScreen({ onOpenHistory, onSignOut }: ChatScreenProps) {
       onSave={conversation.save}
       onError={usage.refresh}
       onOpenHistory={onOpenHistory}
-      onSignOut={onSignOut}
+      onOpenSettings={onOpenSettings}
     />
   );
 }

@@ -12,7 +12,7 @@ import { colors, radius, shadows, space, typography } from "../../theme";
 type ButtonProps = {
   label: string;
   onPress?: () => void;
-  variant?: "primary" | "secondary";
+  variant?: "primary" | "secondary" | "danger";
   hasTVPreferredFocus?: boolean;
   style?: StyleProp<ViewStyle>;
 };
@@ -42,7 +42,13 @@ export function Button({
           scaleStyle,
         ]}
       >
-        <Text style={[typography.label, filled && styles.filledLabel]}>
+        <Text
+          style={[
+            typography.label,
+            filled && styles.filledLabel,
+            variant === "danger" && styles.dangerLabel,
+          ]}
+        >
           {label}
         </Text>
       </Animated.View>
@@ -68,5 +74,8 @@ const styles = StyleSheet.create({
   },
   filledLabel: {
     color: colors.onDuck,
+  },
+  dangerLabel: {
+    color: colors.danger,
   },
 });

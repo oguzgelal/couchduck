@@ -19,6 +19,13 @@ class ConversationController {
     return c.json(await conversationService.list(session.user.id, q));
   });
 
+  clear = factory.createHandlers(async (c) => {
+    const session = await authService.getSession(c.req.raw.headers);
+    if (!session) return c.json({ error: "Unauthorized" }, 401);
+    await conversationService.clear(session.user.id);
+    return c.body(null, 204);
+  });
+
   show = factory.createHandlers(zValidator("param", conversationParamSchema), async (c) => {
     const session = await authService.getSession(c.req.raw.headers);
     if (!session) return c.json({ error: "Unauthorized" }, 401);
