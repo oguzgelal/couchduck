@@ -1,14 +1,13 @@
-import { useEffect, useEffectEvent, useRef, useState, type ComponentRef } from "react";
-import { StyleSheet, Text, TVEventHandler, TVFocusGuideView, View } from "react-native";
+import { useEffect, useRef, useState, type ComponentRef } from "react";
+import { StyleSheet, Text, TVFocusGuideView, View } from "react-native";
 import { ChevronLeft } from "lucide-react-native";
 import type { ChoiceKey } from "../components/settings/choice-fields";
 import { SETTINGS_PAGES } from "../components/settings/pages";
 import { SettingsChoicePicker } from "../components/settings/settings-choice-picker";
 import { SettingsNavItem } from "../components/settings/settings-nav-item";
 import { useTVBack } from "../hooks/use-tv-back";
+import { KeyAction, useTVRemote } from "../hooks/use-tv-remote";
 import { colors, space, typography } from "../theme";
-
-const KEY_ACTION_DOWN = 0;
 
 type SettingsScreenProps = {
   onClose: () => void;
@@ -52,16 +51,9 @@ export function SettingsScreen({ onClose, onSignOut }: SettingsScreenProps) {
     if (contentEntry > 0) contentRef.current?.requestTVFocus();
   }, [contentEntry]);
 
-  const handleRemoteEvent = useEffectEvent((eventType: string, keyAction: unknown) => {
-    if (activePane === "nav" && eventType === "right" && Number(keyAction) !== KEY_ACTION_DOWN) enterContent();
+  useTVRemote((eventType, keyAction) => {
+    if (activePane === "nav" && eventType === "right" && keyAction !== KeyAction.down) enterContent();
   });
-
-  useEffect(() => {
-    const subscription = TVEventHandler.addListener((event) => {
-      if (event) handleRemoteEvent(event.eventType, event.eventKeyAction);
-    });
-    return () => subscription?.remove();
-  }, []);
 
   useTVBack(() => {
     if (openChoice) closeChoice();
@@ -107,6 +99,7 @@ export function SettingsScreen({ onClose, onSignOut }: SettingsScreenProps) {
         trapFocusUp
         trapFocusDown
         trapFocusRight
+        trapFocusLeft={openChoice !== null}
         style={styles.content}
       >
         {openChoice ? (

@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { StyleSheet, TextInput, View } from "react-native";
+import { TextInput, View } from "react-native";
+import { KeyboardInput } from "../ui/keyboard-input";
 import { SettingsRow } from "./settings-row";
 
 type SettingsTextRowProps = {
@@ -29,25 +30,13 @@ export function SettingsTextRow({ title, description, value, hasTVPreferredFocus
         hasTVPreferredFocus={hasTVPreferredFocus}
         onPress={() => inputRef.current?.focus()}
       />
-      {/* tvOS draws its own system chrome around a visible TextInput, so it stays hidden and only hosts the keyboard. */}
-      <TextInput
+      <KeyboardInput
         ref={inputRef}
-        style={styles.hiddenInput}
         value={draft ?? value ?? ""}
         onChangeText={setDraft}
         onEndEditing={handleEndEditing}
         placeholder={title}
-        focusable={false}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  hiddenInput: {
-    position: "absolute",
-    width: 1,
-    height: 1,
-    opacity: 0,
-  },
-});

@@ -1,4 +1,8 @@
+import type { ComponentType } from "react";
 import type { Settings } from "../../hooks/use-settings";
+import type { ChoicePickerSelectionProps } from "../choice-picker/choice-picker";
+import { ChoicePickerCountry } from "../choice-picker/choice-picker-country";
+import { ChoicePickerLanguage } from "../choice-picker/choice-picker-language";
 
 export type ChoiceKey = Exclude<keyof Settings, "name">;
 
@@ -6,9 +10,7 @@ type ChoiceField = {
   title: string;
   description: string;
   emptyLabel: string;
-  multiple: boolean;
-  options: string[];
-};
+} & ({ multiple: true; options: string[]; allowCustom?: boolean } | { multiple: false; Picker: ComponentType<ChoicePickerSelectionProps> });
 
 export const CHOICE_FIELDS: Record<ChoiceKey, ChoiceField> = {
   country: {
@@ -16,70 +18,21 @@ export const CHOICE_FIELDS: Record<ChoiceKey, ChoiceField> = {
     description: "What’s streaming where you are",
     emptyLabel: "Not set",
     multiple: false,
-    options: [
-      "United States",
-      "United Kingdom",
-      "Canada",
-      "Australia",
-      "Ireland",
-      "New Zealand",
-      "Germany",
-      "France",
-      "Spain",
-      "Italy",
-      "Netherlands",
-      "Belgium",
-      "Switzerland",
-      "Austria",
-      "Sweden",
-      "Norway",
-      "Denmark",
-      "Finland",
-      "Poland",
-      "Portugal",
-      "Turkey",
-      "Brazil",
-      "Mexico",
-      "Argentina",
-      "India",
-      "Japan",
-      "South Korea",
-      "Singapore",
-      "South Africa",
-      "United Arab Emirates",
-    ],
+    Picker: ChoicePickerCountry,
   },
   language: {
     title: "Language",
     description: "How Couch Duck talks to you",
     emptyLabel: "Not set",
     multiple: false,
-    options: [
-      "English",
-      "Spanish",
-      "French",
-      "German",
-      "Italian",
-      "Portuguese",
-      "Dutch",
-      "Swedish",
-      "Norwegian",
-      "Danish",
-      "Finnish",
-      "Polish",
-      "Turkish",
-      "Japanese",
-      "Korean",
-      "Chinese",
-      "Hindi",
-      "Arabic",
-    ],
+    Picker: ChoicePickerLanguage,
   },
   streamingServices: {
     title: "Streaming services",
     description: "Picks come from these first",
     emptyLabel: "None",
     multiple: true,
+    allowCustom: true,
     options: [
       "Netflix",
       "Prime Video",
