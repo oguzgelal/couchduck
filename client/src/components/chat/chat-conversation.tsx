@@ -40,8 +40,6 @@ export function ChatConversation({
     (state) => state.startNewConversation,
   );
 
-  useTVBack(() => composerRef.current?.requestTVFocus(), !isComposerFocused);
-
   const isFirstLayoutRef = useRef(true);
 
   const { messages, sendMessage, addToolResult, stop, isLoading, error } =
@@ -93,6 +91,11 @@ export function ChatConversation({
 
   const isEmpty = messages.length === 0;
   const isThinking = isLoading && messages.at(-1)?.role === "user";
+
+  useTVBack(() => {
+    if (isComposerFocused) startNewConversation();
+    else composerRef.current?.requestTVFocus();
+  }, !isComposerFocused || !isEmpty);
 
   const composerBar = (
     <View style={[styles.composerBar, isEmpty && styles.welcomeComposerBar]}>
