@@ -9,15 +9,23 @@ type SettingsNavItemProps = {
   selected: boolean;
   hasTVPreferredFocus?: boolean;
   onSelect: () => void;
+  onEnter: () => void;
 };
 
-export function SettingsNavItem({ label, icon: Icon, selected, hasTVPreferredFocus, onSelect }: SettingsNavItemProps) {
+export function SettingsNavItem({
+  label,
+  icon: Icon,
+  selected,
+  hasTVPreferredFocus,
+  onSelect,
+  onEnter,
+}: SettingsNavItemProps) {
   const { focused, scaleStyle, focusHandlers } = useFocusScale(1.04);
   const color = focused ? colors.onDuck : selected ? colors.ink : colors.inkMuted;
 
   return (
     <Pressable
-      onPress={onSelect}
+      onPress={onEnter}
       hasTVPreferredFocus={hasTVPreferredFocus}
       accessibilityState={{ selected }}
       {...focusHandlers}
