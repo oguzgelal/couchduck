@@ -24,16 +24,16 @@
       "splash": {
         "image": "./assets/images/icon-1920x720.png"
       },
-      "package": "com.oguzgelal.tvai"
+      "package": "com.oguzgelal.couchduck"
     },
     "ios": {
       "splash": {
         "image": "./assets/images/icon-1920x720.png"
       },
-      "bundleIdentifier": "com.oguzgelal.tvai"
+      "bundleIdentifier": "com.oguzgelal.couchduck"
     },
     "userInterfaceStyle": "dark",
-    "name": "tvai",
-    "slug": "tvai"
+    "name": "couchduck",
+    "slug": "couchduck"
   }
 }

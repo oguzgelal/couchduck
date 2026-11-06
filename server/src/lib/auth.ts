@@ -4,7 +4,7 @@ import { bearer, deviceAuthorization } from "better-auth/plugins";
 import { personService } from "../services/person.service.js";
 import { prisma } from "./db.js";
 
-export const TV_CLIENT_ID = "tvai-tv";
+export const TV_CLIENT_ID = "couchduck-tv";
 
 const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = process.env;
 

@@ -2,9 +2,9 @@ services:
   postgres:
     image: postgres:18
     environment:
-      POSTGRES_USER: tvai
-      POSTGRES_PASSWORD: tvai
-      POSTGRES_DB: tvai
+      POSTGRES_USER: couchduck
+      POSTGRES_PASSWORD: couchduck
+      POSTGRES_DB: couchduck
     ports:
       - "5432:5432"
     volumes:
