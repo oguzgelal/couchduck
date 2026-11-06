@@ -1,6 +1,5 @@
 import type { ComponentType } from "react";
 import { CircleUser, Clapperboard, Globe, KeyRound, User, type LucideIcon } from "lucide-react-native";
-import type { ChoiceKey } from "../choice-fields";
 import { AboutPage } from "./about-page";
 import { AccountPage } from "./account-page";
 import { AvailabilityPage } from "./availability-page";
@@ -8,8 +7,10 @@ import { ContentPage } from "./content-page";
 import { PlanPage } from "./plan-page";
 
 export type SettingsPageProps = {
-  onOpenChoice: (field: ChoiceKey) => void;
-  returnFocusTo?: ChoiceKey;
+  subpage: string | null;
+  returnFocusTo?: string;
+  onOpenSubpage: (id: string) => void;
+  onCloseSubpage: () => void;
   onSignOut: () => void;
 };
 

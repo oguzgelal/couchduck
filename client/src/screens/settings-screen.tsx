@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState, type ComponentRef } from "react";
 import { StyleSheet, Text, TVFocusGuideView, View } from "react-native";
 import { ChevronLeft } from "lucide-react-native";
-import type { ChoiceKey } from "../components/settings/choice-fields";
 import { SETTINGS_PAGES } from "../components/settings/pages";
-import { SettingsChoicePicker } from "../components/settings/settings-choice-picker";
 import { SettingsNavItem } from "../components/settings/settings-nav-item";
 import { useTVBack } from "../hooks/use-tv-back";
 import { KeyAction, useTVRemote } from "../hooks/use-tv-remote";
@@ -18,8 +16,8 @@ export function SettingsScreen({ onClose, onSignOut }: SettingsScreenProps) {
   const [pageId, setPageId] = useState(SETTINGS_PAGES[0].id);
   const [activePane, setActivePane] = useState<"nav" | "content">("nav");
   const [contentEntry, setContentEntry] = useState(0);
-  const [openChoice, setOpenChoice] = useState<ChoiceKey | null>(null);
-  const [returnFocusTo, setReturnFocusTo] = useState<ChoiceKey>();
+  const [subpage, setSubpage] = useState<string | null>(null);
+  const [returnFocusTo, setReturnFocusTo] = useState<string>();
   const navRef = useRef<ComponentRef<typeof TVFocusGuideView>>(null);
   const contentRef = useRef<ComponentRef<typeof TVFocusGuideView>>(null);
   const { Page } = SETTINGS_PAGES.find((page) => page.id === pageId) ?? SETTINGS_PAGES[0];
@@ -27,7 +25,7 @@ export function SettingsScreen({ onClose, onSignOut }: SettingsScreenProps) {
   const selectPage = (id: string) => {
     if (id === pageId) return;
     setPageId(id);
-    setOpenChoice(null);
+    setSubpage(null);
     setReturnFocusTo(undefined);
   };
 
@@ -42,9 +40,9 @@ export function SettingsScreen({ onClose, onSignOut }: SettingsScreenProps) {
     navRef.current?.requestTVFocus();
   };
 
-  const closeChoice = () => {
-    setReturnFocusTo(openChoice ?? undefined);
-    setOpenChoice(null);
+  const closeSubpage = () => {
+    setReturnFocusTo(subpage ?? undefined);
+    setSubpage(null);
   };
 
   useEffect(() => {
@@ -56,7 +54,7 @@ export function SettingsScreen({ onClose, onSignOut }: SettingsScreenProps) {
   });
 
   useTVBack(() => {
-    if (openChoice) closeChoice();
+    if (subpage) closeSubpage();
     else if (activePane === "content") returnToNav();
     else onClose();
   });
@@ -99,14 +97,16 @@ export function SettingsScreen({ onClose, onSignOut }: SettingsScreenProps) {
         trapFocusUp
         trapFocusDown
         trapFocusRight
-        trapFocusLeft={openChoice !== null}
+        trapFocusLeft={subpage !== null}
         style={styles.content}
       >
-        {openChoice ? (
-          <SettingsChoicePicker field={openChoice} onDone={closeChoice} />
-        ) : (
-          <Page onOpenChoice={setOpenChoice} returnFocusTo={returnFocusTo} onSignOut={onSignOut} />
-        )}
+        <Page
+          subpage={subpage}
+          returnFocusTo={returnFocusTo}
+          onOpenSubpage={setSubpage}
+          onCloseSubpage={closeSubpage}
+          onSignOut={onSignOut}
+        />
       </TVFocusGuideView>
     </View>
   );

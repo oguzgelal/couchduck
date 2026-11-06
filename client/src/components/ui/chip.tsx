@@ -1,9 +1,14 @@
-import { Animated, Pressable, StyleSheet, Text, type PressableProps } from "react-native";
+import type { Ref } from "react";
+import { Animated, Pressable, StyleSheet, Text, View, type PressableProps } from "react-native";
 import type { LucideIcon } from "lucide-react-native";
 import { useFocusScale } from "../../hooks/use-focus-scale";
 import { colors, radius, shadows, space, typography } from "../../theme";
 
-type ChipProps = Pick<PressableProps, "nextFocusDown" | "nextFocusLeft" | "nextFocusRight"> & {
+type ChipProps = Pick<
+  PressableProps,
+  "nextFocusUp" | "nextFocusDown" | "nextFocusLeft" | "nextFocusRight" | "onLayout"
+> & {
+  ref?: Ref<View>;
   label: string;
   icon?: LucideIcon;
   selected?: boolean;
@@ -11,16 +16,17 @@ type ChipProps = Pick<PressableProps, "nextFocusDown" | "nextFocusLeft" | "nextF
   onPress?: () => void;
 };
 
-export function Chip({ label, icon: Icon, selected, onPress, hasTVPreferredFocus, ...focusTargets }: ChipProps) {
+export function Chip({ ref, label, icon: Icon, selected, onPress, hasTVPreferredFocus, ...pressableProps }: ChipProps) {
   const { focused, scaleStyle, focusHandlers } = useFocusScale();
   const labelColor = focused ? colors.onDuck : selected ? colors.duck : colors.inkMuted;
 
   return (
     <Pressable
+      ref={ref}
       onPress={onPress}
       hasTVPreferredFocus={hasTVPreferredFocus}
       accessibilityState={selected === undefined ? undefined : { selected }}
-      {...focusTargets}
+      {...pressableProps}
       {...focusHandlers}
     >
       <Animated.View

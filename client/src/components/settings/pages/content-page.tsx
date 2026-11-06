@@ -1,18 +1,66 @@
-import { SettingsChoiceRow } from "../settings-choice-row";
-import { SettingsSection } from "../settings-section";
+import { useSettings } from "../../../hooks/use-settings";
+import { PillPicker } from "../../pill-picker/pill-picker";
+import { SettingsPickerSection } from "../settings-picker-section";
+import { DISLIKES, FORMATS, GENRES } from "../settings-options";
 import type { SettingsPageProps } from "./index";
 
-export function ContentPage({ onOpenChoice, returnFocusTo }: SettingsPageProps) {
+export function ContentPage({ subpage, returnFocusTo, onOpenSubpage, onCloseSubpage }: SettingsPageProps) {
+  const { settings, update } = useSettings();
+
   return (
-    <SettingsSection title="Content preferences" description="What you love, and what you’d rather skip.">
-      {(["formats", "genres", "dislikes"] as const).map((field) => (
-        <SettingsChoiceRow
-          key={field}
-          field={field}
-          hasTVPreferredFocus={field === returnFocusTo}
-          onOpen={onOpenChoice}
-        />
-      ))}
-    </SettingsSection>
+    <SettingsPickerSection
+      title="Content preferences"
+      description="What you love, and what you’d rather skip."
+      subpage={subpage}
+      returnFocusTo={returnFocusTo}
+      onOpenSubpage={onOpenSubpage}
+      onCloseSubpage={onCloseSubpage}
+      rows={[
+        {
+          id: "formats",
+          title: "Formats",
+          description: "What you like to watch",
+          value: settings && (settings.formats?.join(", ") || "Anything"),
+          multiple: true,
+          picker: (
+            <PillPicker
+              options={FORMATS}
+              selected={settings?.formats ?? []}
+              onChange={(formats) => update({ formats })}
+            />
+          ),
+        },
+        {
+          id: "genres",
+          title: "Favorite genres",
+          description: "Picks lean towards these",
+          value: settings && (settings.genres?.join(", ") || "Anything"),
+          multiple: true,
+          picker: (
+            <PillPicker
+              options={GENRES}
+              selected={settings?.genres ?? []}
+              onChange={(genres) => update({ genres })}
+              addLabel="Add"
+            />
+          ),
+        },
+        {
+          id: "dislikes",
+          title: "Not for you",
+          description: "Couch Duck steers clear of these",
+          value: settings && (settings.dislikes?.join(", ") || "Nothing"),
+          multiple: true,
+          picker: (
+            <PillPicker
+              options={DISLIKES}
+              selected={settings?.dislikes ?? []}
+              onChange={(dislikes) => update({ dislikes })}
+              addLabel="Add"
+            />
+          ),
+        },
+      ]}
+    />
   );
 }

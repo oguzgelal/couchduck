@@ -22,12 +22,14 @@ export function SettingsSection({ title, description, children }: SettingsSectio
 
 const styles = StyleSheet.create({
   section: {
+    flex: 1,
     gap: space[7],
   },
   heading: {
     gap: space[3],
   },
   items: {
+    flex: 1,
     gap: space[4],
   },
 });
