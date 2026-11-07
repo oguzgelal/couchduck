@@ -36,11 +36,12 @@ export function SettingsRow({ title, description, value, hasTVPreferredFocus, on
 
 const styles = StyleSheet.create({
   row: {
-    height: 112,
+    minHeight: 112,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: space[6],
+    paddingVertical: space[3],
     paddingHorizontal: space[6],
     borderRadius: radius.md,
     backgroundColor: colors.surface,
@@ -49,10 +50,12 @@ const styles = StyleSheet.create({
     boxShadow: `${shadows.lift}, ${shadows.focusRing}`,
   },
   text: {
+    flexShrink: 1,
     gap: space[1],
   },
   trailing: {
     flexShrink: 1,
+    maxWidth: "45%",
     flexDirection: "row",
     alignItems: "center",
     gap: space[3],

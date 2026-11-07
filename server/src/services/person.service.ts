@@ -1,6 +1,10 @@
 import { prisma } from "../lib/db.js";
 import { memoriesSchema, type Memories } from "../schemas/person.schema.js";
-import { preferencesSchema, type Preferences, type SettingsUpdate } from "../schemas/settings.schema.js";
+import {
+  preferencesSchema,
+  type Preferences,
+  type SettingsUpdate,
+} from "../schemas/settings.schema.js";
 import { ServiceError } from "./service-error.js";
 
 export type ActivePerson = {
@@ -10,14 +14,23 @@ export type ActivePerson = {
   preferences: Preferences;
 };
 
-const PREFERENCE_LABELS: Record<keyof Preferences, string> = {
-  country: "Country",
-  language: "Preferred language",
-  streamingServices: "Streaming services they have",
-  formats: "Formats they like",
-  genres: "Favorite genres",
-  dislikes: "Wants to avoid",
-};
+const PREFERENCE_GUIDES: Record<keyof Preferences, (value: string) => string> =
+  {
+    country: (value) => `Country: ${value}. Prefer movies and shows available in this region.`, // prettier-ignore
+    streamingServices: (value) => `Streaming services: ${value}. Prefer movies and shows available on these services.`, // prettier-ignore
+    formats: (value) => `Formats: ${value}. Prefer these formats.`, // prettier-ignore
+    genres: (value) => `Favorite genres: ${value}. Lean towards these genres.`, // prettier-ignore
+    dislikes: (value) => `Avoid: ${value}. Steer clear of these.`, // prettier-ignore
+    languages: (value) => `Preferred languages: ${value}. Prefer movies and shows originally in these languages.`, // prettier-ignore
+    subtitleLanguages: (value) => `Subtitle languages: ${value}. Prefer movies and shows with subtitles available in these languages.`, // prettier-ignore
+  };
+
+const PREFERENCES_INTRO = `
+Viewing preferences they set as defaults for recommendations. 
+Anything they ask for in the conversation overrides these: 
+if they ask for horror tonight, recommend horror even if horror is in 
+their avoid list. Unset preferences mean anything goes.
+`;
 
 class PersonService {
   async createDefault(user: { id: string; name: string }) {
@@ -89,11 +102,21 @@ class PersonService {
       WHERE "id" = ${personId}`;
   }
 
-  describe({ name, memories, preferences }: ActivePerson) {
-    const settings = Object.entries(preferences)
-      .map(([key, value]) => [PREFERENCE_LABELS[key as keyof Preferences], [value].flat().join(", ")])
+  describePreferences(preferences: Preferences) {
+    const guides = Object.entries(preferences)
+      .map(
+        ([key, value]) =>
+          [key as keyof Preferences, [value].flat().join(", ")] as const,
+      )
       .filter(([, value]) => value)
-      .map(([label, value]) => `${label}: ${value}`);
+      .map(([key, value]) => `- ${PREFERENCE_GUIDES[key](value)}`);
+    if (guides.length === 0) {
+      guides.push("- (none set, search everything)");
+    }
+    return [PREFERENCES_INTRO, ...guides];
+  }
+
+  describe({ name, memories, preferences }: ActivePerson) {
     const facts = Object.values(memories).map(
       ({ key, fact }) => `- ${key}: ${fact}`,
     );
@@ -102,8 +125,8 @@ class PersonService {
     }
     return [
       "About the person you're talking to:",
-      `Name: ${name}`,
-      ...settings,
+      `Name: ${name} (note: refer to the person by their first name)`,
+      ...this.describePreferences(preferences),
       "Memories:",
       ...facts,
     ].join("\n");

@@ -12,6 +12,7 @@ export type SettingsPickerRow = {
   id: string;
   title: string;
   description: string;
+  details: string;
   value?: string;
   picker: (focus: SettingsPickerFocus) => ReactNode;
   multiple?: boolean;
@@ -46,7 +47,7 @@ export function SettingsPickerSection({
     return (
       <SettingsSection
         title={openRow.title}
-        description={openRow.multiple ? `${openRow.description}. Pick as many as you like.` : openRow.description}
+        description={openRow.multiple ? `${openRow.details} Pick as many as you like.` : openRow.details}
       >
         {openRow.picker({ nextFocusDown: openRow.multiple ? doneTag : undefined })}
         {openRow.multiple && (

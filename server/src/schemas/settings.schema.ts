@@ -5,11 +5,12 @@ const choices = z.array(choice).max(50);
 
 export const preferencesSchema = z.object({
   country: choice.optional(),
-  language: choice.optional(),
   streamingServices: choices.optional(),
   formats: choices.optional(),
   genres: choices.optional(),
   dislikes: choices.optional(),
+  languages: choices.optional(),
+  subtitleLanguages: choices.optional(),
 });
 
 export const settingsUpdateSchema = preferencesSchema.extend({

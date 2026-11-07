@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ComponentRef } from "react";
 import { StyleSheet, Text, TVFocusGuideView, View } from "react-native";
-import { ChevronLeft } from "lucide-react-native";
+import { CircleChevronLeft } from "lucide-react-native";
 import { SETTINGS_PAGES } from "../components/settings/pages";
 import { SettingsNavItem } from "../components/settings/settings-nav-item";
 import { useTVBack } from "../hooks/use-tv-back";
@@ -85,8 +85,9 @@ export function SettingsScreen({ onClose, onSignOut }: SettingsScreenProps) {
           ))}
         </View>
         <View style={styles.backHint}>
-          <ChevronLeft size={22} color={colors.inkSubtle} strokeWidth={2.5} />
-          <Text style={typography.caption}>Press Back to return to the chat</Text>
+          <Text style={typography.caption}>Press</Text>
+          <CircleChevronLeft size={26} color={colors.inkSubtle} strokeWidth={2.5} />
+          <Text style={typography.caption}>to return to the chat</Text>
         </View>
       </TVFocusGuideView>
       <TVFocusGuideView

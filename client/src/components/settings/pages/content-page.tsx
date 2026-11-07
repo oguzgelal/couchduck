@@ -1,16 +1,28 @@
 import { useSettings } from "../../../hooks/use-settings";
+import { ChoicePickerLanguage } from "../../choice-picker/choice-picker-language";
 import { PillPicker } from "../../pill-picker/pill-picker";
 import { SettingsPickerSection } from "../settings-picker-section";
 import { DISLIKES, FORMATS, GENRES } from "../settings-options";
 import type { SettingsPageProps } from "./index";
 
-export function ContentPage({ subpage, returnFocusTo, onOpenSubpage, onCloseSubpage }: SettingsPageProps) {
+function toggle(list: string[] = [], value: string) {
+  return list.includes(value)
+    ? list.filter((item) => item !== value)
+    : [...list, value];
+}
+
+export function ContentPage({
+  subpage,
+  returnFocusTo,
+  onOpenSubpage,
+  onCloseSubpage,
+}: SettingsPageProps) {
   const { settings, update } = useSettings();
 
   return (
     <SettingsPickerSection
       title="Content preferences"
-      description="What you love, and what you’d rather skip."
+      description="Couch Duck recommends movies and shows based on these. They’re defaults, so anything you ask for in chat wins: ask for horror tonight and you’ll get horror, even if it’s on your skip list."
       subpage={subpage}
       returnFocusTo={returnFocusTo}
       onOpenSubpage={onOpenSubpage}
@@ -19,7 +31,9 @@ export function ContentPage({ subpage, returnFocusTo, onOpenSubpage, onCloseSubp
         {
           id: "formats",
           title: "Formats",
-          description: "What you like to watch",
+          description: "Movies, TV shows, or both",
+          details:
+            "Couch Duck leans towards the formats you pick. Leave empty for both.",
           value: settings && (settings.formats?.join(", ") || "Anything"),
           multiple: true,
           picker: (focus) => (
@@ -35,6 +49,8 @@ export function ContentPage({ subpage, returnFocusTo, onOpenSubpage, onCloseSubp
           id: "genres",
           title: "Favorite genres",
           description: "Picks lean towards these",
+          details:
+            "Couch Duck favors these genres when it recommends something. Add any that aren’t listed.",
           value: settings && (settings.genres?.join(", ") || "Anything"),
           multiple: true,
           picker: (focus) => (
@@ -51,6 +67,8 @@ export function ContentPage({ subpage, returnFocusTo, onOpenSubpage, onCloseSubp
           id: "dislikes",
           title: "Not for you",
           description: "Couch Duck steers clear of these",
+          details:
+            "Couch Duck avoids these unless you ask for them in chat. Add anything else you’d rather skip.",
           value: settings && (settings.dislikes?.join(", ") || "Nothing"),
           multiple: true,
           picker: (focus) => (
@@ -60,6 +78,45 @@ export function ContentPage({ subpage, returnFocusTo, onOpenSubpage, onCloseSubp
               selected={settings?.dislikes ?? []}
               onChange={(dislikes) => update({ dislikes })}
               addLabel="Add"
+            />
+          ),
+        },
+        {
+          id: "languages",
+          title: "Preferred languages",
+          description: "Picks lean towards content in these languages",
+          details:
+            "Couch Duck tries to pick movies and shows originally in these languages.",
+          value: settings && (settings.languages?.join(", ") || "Any language"),
+          multiple: true,
+          picker: () => (
+            <ChoicePickerLanguage
+              selected={settings?.languages ?? []}
+              onSelect={(language) =>
+                update({ languages: toggle(settings?.languages, language) })
+              }
+            />
+          ),
+        },
+        {
+          id: "subtitleLanguages",
+          title: "Preferred subtitle languages",
+          description: "Picks lean towards subtitles in these languages",
+          details:
+            "Couch Duck tries to pick movies and shows with subtitles available in these languages. Subtitle availability isn’t guaranteed.",
+          value: settings && (settings.subtitleLanguages?.join(", ") || "Any"),
+          multiple: true,
+          picker: () => (
+            <ChoicePickerLanguage
+              selected={settings?.subtitleLanguages ?? []}
+              onSelect={(language) =>
+                update({
+                  subtitleLanguages: toggle(
+                    settings?.subtitleLanguages,
+                    language,
+                  ),
+                })
+              }
             />
           ),
         },

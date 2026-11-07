@@ -6,7 +6,7 @@ export function AboutPage() {
   const { settings, update } = useSettings();
 
   return (
-    <SettingsSection title="About you" description="So Couch Duck knows who it’s talking to.">
+    <SettingsSection title="About you">
       <SettingsTextRow
         title="Name"
         description="What Couch Duck calls you"

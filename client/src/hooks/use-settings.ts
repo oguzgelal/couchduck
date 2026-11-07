@@ -4,11 +4,12 @@ import { apiFetch } from "../lib/api";
 export type Settings = {
   name: string;
   country?: string;
-  language?: string;
   streamingServices?: string[];
   formats?: string[];
   genres?: string[];
   dislikes?: string[];
+  languages?: string[];
+  subtitleLanguages?: string[];
 };
 
 const SETTINGS_QUERY_KEY = ["settings"];

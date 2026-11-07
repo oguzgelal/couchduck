@@ -14,7 +14,7 @@ export type ChoiceItem = {
 
 export type ChoicePickerProps = {
   items: ChoiceItem[];
-  selected?: string;
+  selected: string[];
   onSelect: (value: string) => void;
 };
 
@@ -38,7 +38,7 @@ export function ChoicePicker({ items, selected, onSelect }: ChoicePickerProps) {
   const rowRefs = useRef<(View | null)[]>([]);
   const focusedIndexRef = useRef<number | null>(null);
   const fastScrollRef = useRef<ReturnType<typeof setInterval>>(undefined);
-  const selectedIndex = Math.max(0, items.findIndex((item) => item.value === selected));
+  const selectedIndex = Math.max(0, items.findIndex((item) => selected.includes(item.value)));
 
   const focusRow = (index: number) => rowRefs.current[index]?.requestTVFocus();
   const stopFastScroll = () => clearInterval(fastScrollRef.current);
@@ -67,7 +67,7 @@ export function ChoicePicker({ items, selected, onSelect }: ChoicePickerProps) {
               rowRefs.current[index] = row;
             }}
             item={item}
-            selected={item.value === selected}
+            selected={selected.includes(item.value)}
             hasTVPreferredFocus={index === selectedIndex}
             onFocus={() => {
               focusedIndexRef.current = index;
