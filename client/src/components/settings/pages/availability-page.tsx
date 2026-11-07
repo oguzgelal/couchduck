@@ -1,8 +1,9 @@
+import { countryName } from "../../../config/countries";
 import { useSettings } from "../../../hooks/use-settings";
+import { useSettingsOptions } from "../../../hooks/use-settings-options";
 import { ChoicePickerCountry } from "../../choice-picker/choice-picker-country";
 import { PillPicker } from "../../pill-picker/pill-picker";
 import { SettingsPickerSection } from "../settings-picker-section";
-import { STREAMING_SERVICES } from "../settings-options";
 import type { SettingsPageProps } from "./index";
 
 export function AvailabilityPage({
@@ -12,6 +13,7 @@ export function AvailabilityPage({
   onCloseSubpage,
 }: SettingsPageProps) {
   const { settings, update } = useSettings();
+  const options = useSettingsOptions();
 
   return (
     <SettingsPickerSection
@@ -27,7 +29,7 @@ export function AvailabilityPage({
           title: "Country or region",
           description: "Picks lean towards what’s available where you are", // prettier-ignore
           details: "Couch Duck tries to recommend movies and shows available in your region. Catalogs change often, so it’s not guaranteed.", // prettier-ignore
-          value: settings && (settings.country ?? "Anywhere"),
+          value: settings && (settings.country ? countryName(settings.country) : "Anywhere"),
           picker: () => (
             <ChoicePickerCountry
               selected={settings?.country ? [settings.country] : []}
@@ -50,7 +52,7 @@ export function AvailabilityPage({
           picker: (focus) => (
             <PillPicker
               {...focus}
-              options={STREAMING_SERVICES}
+              options={options.streamingServices}
               selected={settings?.streamingServices ?? []}
               onChange={(streamingServices) => update({ streamingServices })}
               addLabel="Add"

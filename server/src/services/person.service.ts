@@ -1,7 +1,8 @@
 import { prisma } from "../lib/db.js";
+import { languageName, regionName } from "../lib/locale-names.js";
 import { memoriesSchema, type Memories } from "../schemas/person.schema.js";
 import {
-  preferencesSchema,
+  parseStoredPreferences,
   type Preferences,
   type SettingsUpdate,
 } from "../schemas/settings.schema.js";
@@ -24,6 +25,12 @@ const PREFERENCE_GUIDES: Record<keyof Preferences, (value: string) => string> =
     languages: (value) => `Preferred languages: ${value}. Prefer movies and shows originally in these languages.`, // prettier-ignore
     subtitleLanguages: (value) => `Subtitle languages: ${value}. Prefer movies and shows with subtitles available in these languages.`, // prettier-ignore
   };
+
+const READABLE_PREFERENCES: Partial<Record<keyof Preferences, (code: string) => string>> = {
+  country: regionName,
+  languages: languageName,
+  subtitleLanguages: languageName,
+};
 
 const PREFERENCES_INTRO = `
 Viewing preferences they set as defaults for recommendations. 
@@ -67,7 +74,7 @@ class PersonService {
       id: activePerson.id,
       name: activePerson.name,
       memories: memoriesSchema.parse(activePerson.metadata),
-      preferences: preferencesSchema.parse(activePerson.preferences),
+      preferences: parseStoredPreferences(activePerson.preferences),
     };
   }
 
@@ -76,17 +83,19 @@ class PersonService {
     return { name, ...preferences };
   }
 
-  async updateSettings(userId: string, { name, ...update }: SettingsUpdate) {
-    const person = await this.getActive(userId);
-    const preferences = { ...person.preferences, ...update };
-    await prisma.person.update({
-      where: { id: person.id },
-      data: { name, preferences },
-    });
-    return { name: name ?? person.name, ...preferences };
+  // Atomic jsonb updates: a read-modify-write would let parallel tool calls overwrite each other.
+  async updateSettings(personId: string, { name, ...update }: SettingsUpdate) {
+    const entries = Object.entries(update).filter(([, value]) => value !== undefined);
+    const cleared = entries.filter(([, value]) => value === null).map(([key]) => key);
+    const changed = JSON.stringify(Object.fromEntries(entries.filter(([, value]) => value !== null)));
+    await prisma.$executeRaw`
+      UPDATE "person"
+      SET "preferences" = ("preferences" || ${changed}::jsonb) - ${cleared}::text[],
+          "name" = coalesce(${name ?? null}::text, "name"),
+          "updatedAt" = CURRENT_TIMESTAMP
+      WHERE "id" = ${personId}`;
   }
 
-  // Atomic jsonb updates: a read-modify-write would let parallel tool calls overwrite each other.
   async remember(personId: string, key: string, fact: string) {
     const memory = JSON.stringify({ key, fact });
     await prisma.$executeRaw`
@@ -104,10 +113,11 @@ class PersonService {
 
   describePreferences(preferences: Preferences) {
     const guides = Object.entries(preferences)
-      .map(
-        ([key, value]) =>
-          [key as keyof Preferences, [value].flat().join(", ")] as const,
-      )
+      .map(([key, value]) => {
+        const readable = READABLE_PREFERENCES[key as keyof Preferences];
+        const items = [value].flat().map((item) => readable?.(item) ?? item);
+        return [key as keyof Preferences, items.join(", ")] as const;
+      })
       .filter(([, value]) => value)
       .map(([key, value]) => `- ${PREFERENCE_GUIDES[key](value)}`);
     if (guides.length === 0) {

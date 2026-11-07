@@ -2,6 +2,8 @@ import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { findNodeHandle, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useChat, type UIMessage } from "@tanstack/ai-react";
 import { MessageSquarePlus, RotateCcwClock } from "lucide-react-native";
+import { useQueryClient } from "@tanstack/react-query";
+import { SETTINGS_QUERY_KEY } from "../../hooks/use-settings";
 import { chatConnection } from "../../lib/chat-connection";
 import { useTVBack } from "../../hooks/use-tv-back";
 import { useConversationStore } from "../../stores/conversation-store";
@@ -16,6 +18,7 @@ import { ComposerHint } from "./composer-hint";
 import type { QuestionAnswer } from "./assistant-message/question-part";
 
 const ASK_USER_QUESTION = "ask_user_question";
+const UPDATE_SETTINGS = "update_settings";
 
 type ChatConversationProps = {
   savedMessages: UIMessage[];
@@ -41,6 +44,7 @@ export function ChatConversation({
   );
 
   const isFirstLayoutRef = useRef(true);
+  const queryClient = useQueryClient();
 
   const { messages, sendMessage, addToolResult, stop, isLoading, error } =
     useChat({
@@ -54,8 +58,21 @@ export function ChatConversation({
     onSave(messages);
   });
 
+  const refreshUpdatedSettings = useEffectEvent(() => {
+    const updatedSettings = messages
+      .at(-1)
+      ?.parts.some(
+        (part) => part.type === "tool-call" && part.name === UPDATE_SETTINGS,
+      );
+    if (updatedSettings) {
+      queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
+    }
+  });
+
   useEffect(() => {
-    if (!isLoading) saveTurn();
+    if (isLoading) return;
+    saveTurn();
+    refreshUpdatedSettings();
   }, [isLoading]);
 
   const pendingQuestion = messages

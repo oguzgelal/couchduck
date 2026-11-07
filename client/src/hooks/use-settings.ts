@@ -12,7 +12,7 @@ export type Settings = {
   subtitleLanguages?: string[];
 };
 
-const SETTINGS_QUERY_KEY = ["settings"];
+export const SETTINGS_QUERY_KEY = ["settings"];
 
 export function useSettings() {
   const queryClient = useQueryClient();

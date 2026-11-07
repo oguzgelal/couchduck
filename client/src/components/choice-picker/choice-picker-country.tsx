@@ -1,9 +1,9 @@
-import { COUNTRIES, countryFlag } from "../../config/countries";
+import { COUNTRY_CODES, countryFlag, countryName } from "../../config/countries";
 import { ChoicePicker, type ChoiceItem, type ChoicePickerSelectionProps } from "./choice-picker";
 
-const COUNTRY_ITEMS: ChoiceItem[] = COUNTRIES.map(({ code, name }) => ({
-  value: name,
-  label: name,
+const COUNTRY_ITEMS: ChoiceItem[] = COUNTRY_CODES.map((code) => ({
+  value: code,
+  label: countryName(code),
   flag: countryFlag(code),
 })).sort((a, b) => a.label.localeCompare(b.label));
 

@@ -1,8 +1,9 @@
+import { languageTagName } from "../../../config/countries";
 import { useSettings } from "../../../hooks/use-settings";
+import { useSettingsOptions } from "../../../hooks/use-settings-options";
 import { ChoicePickerLanguage } from "../../choice-picker/choice-picker-language";
 import { PillPicker } from "../../pill-picker/pill-picker";
 import { SettingsPickerSection } from "../settings-picker-section";
-import { DISLIKES, FORMATS, GENRES } from "../settings-options";
 import type { SettingsPageProps } from "./index";
 
 function toggle(list: string[] = [], value: string) {
@@ -18,6 +19,7 @@ export function ContentPage({
   onCloseSubpage,
 }: SettingsPageProps) {
   const { settings, update } = useSettings();
+  const options = useSettingsOptions();
 
   return (
     <SettingsPickerSection
@@ -39,7 +41,7 @@ export function ContentPage({
           picker: (focus) => (
             <PillPicker
               {...focus}
-              options={FORMATS}
+              options={options.formats}
               selected={settings?.formats ?? []}
               onChange={(formats) => update({ formats })}
             />
@@ -56,7 +58,7 @@ export function ContentPage({
           picker: (focus) => (
             <PillPicker
               {...focus}
-              options={GENRES}
+              options={options.genres}
               selected={settings?.genres ?? []}
               onChange={(genres) => update({ genres })}
               addLabel="Add"
@@ -74,7 +76,7 @@ export function ContentPage({
           picker: (focus) => (
             <PillPicker
               {...focus}
-              options={DISLIKES}
+              options={options.dislikes}
               selected={settings?.dislikes ?? []}
               onChange={(dislikes) => update({ dislikes })}
               addLabel="Add"
@@ -87,7 +89,7 @@ export function ContentPage({
           description: "Picks lean towards content in these languages",
           details:
             "Couch Duck tries to pick movies and shows originally in these languages.",
-          value: settings && (settings.languages?.join(", ") || "Any language"),
+          value: settings && (settings.languages?.map(languageTagName).join(", ") || "Any language"),
           multiple: true,
           picker: () => (
             <ChoicePickerLanguage
@@ -104,7 +106,7 @@ export function ContentPage({
           description: "Picks lean towards subtitles in these languages",
           details:
             "Couch Duck tries to pick movies and shows with subtitles available in these languages. Subtitle availability isn’t guaranteed.",
-          value: settings && (settings.subtitleLanguages?.join(", ") || "Any"),
+          value: settings && (settings.subtitleLanguages?.map(languageTagName).join(", ") || "Any"),
           multiple: true,
           picker: () => (
             <ChoicePickerLanguage
