@@ -4,12 +4,14 @@ import { thinkTool } from "./think.tool.js";
 import { updateSettingsTool } from "./update-settings.tool.js";
 import { upsertMemoryTool } from "./upsert-memory.tool.js";
 import { weatherTool } from "./weather.tool.js";
+import { webSearchTool } from "./web-search.tool.js";
 
 export const chatTools = [
   thinkTool,
   askUserQuestionTool,
   currentTimeTool,
   weatherTool,
+  webSearchTool,
   upsertMemoryTool,
   updateSettingsTool,
 ];

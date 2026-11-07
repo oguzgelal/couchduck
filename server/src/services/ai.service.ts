@@ -13,6 +13,7 @@ const CHAT_MODEL = "anthropic/claude-sonnet-5.5";
 const SMALL_MODEL = "anthropic/claude-haiku-4.5";
 const MAX_ITERATIONS = 10;
 const MONTHLY_CAP_USD = 10;
+const USAGE_HOLD_USD = 0.1;
 
 export type ChatRun = Pick<
   Awaited<ReturnType<typeof chatParamsFromRequest>>,
@@ -95,11 +96,13 @@ class AiService {
   private usageMiddleware(userId: string): ChatMiddleware {
     return {
       name: "usage",
+      onStart: () => this.recordUsage(userId, USAGE_HOLD_USD),
       onUsage: (_, usage) =>
         this.recordUsage(
           userId,
           (usage.cost ?? 0) + (usage.costDetails?.upstreamCost ?? 0),
         ),
+      onFinish: () => this.recordUsage(userId, -USAGE_HOLD_USD),
     };
   }
 
