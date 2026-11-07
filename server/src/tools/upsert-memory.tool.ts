@@ -3,6 +3,7 @@ import { z } from "zod";
 import { GENERAL_STATEMENTS_ONLY, SETTING_NAMES } from "../schemas/settings.schema.js";
 import { personService } from "../services/person.service.js";
 import type { ChatContext } from "./chat-context.js";
+import { withStatus } from "./tool-status.js";
 
 export const upsertMemoryTool = toolDefinition({
   name: "upsert_memory",
@@ -13,7 +14,7 @@ export const upsertMemoryTool = toolDefinition({
       GENERAL_STATEMENTS_ONLY,
       "When a fact changes, update it by reusing its existing key. When it no longer holds or they ask you to forget it, pass fact as null.",
     ].join(" "),
-  inputSchema: z.object({
+  inputSchema: withStatus({
     key: z.string().meta({
       description: "Short snake_case identifier, e.g. favorite_actor",
     }),

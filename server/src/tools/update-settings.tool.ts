@@ -9,6 +9,7 @@ import {
 } from "../schemas/settings.schema.js";
 import { personService } from "../services/person.service.js";
 import type { ChatContext } from "./chat-context.js";
+import { withoutStatus, withStatus } from "./tool-status.js";
 
 const openList = (description: string, known: readonly string[]) =>
   z.array(z.string().trim().min(1).max(64)).max(50).optional().meta({
@@ -27,7 +28,7 @@ export const updateSettingsTool = toolDefinition({
     GENERAL_STATEMENTS_ONLY,
     "Pass only the settings that change. Lists replace the saved list, so include the existing items they keep; their current settings are in your instructions.",
   ].join(" "),
-  inputSchema: settingsUpdateSchema.extend({
+  inputSchema: withStatus(settingsUpdateSchema.shape).extend({
     name: z.string().trim().min(1).max(80).optional().meta({
       description: "What to call them",
     }),
@@ -43,7 +44,8 @@ export const updateSettingsTool = toolDefinition({
     languages: languageList("Languages they prefer movies and shows originally in"),
     subtitleLanguages: languageList("Languages they prefer subtitles in"),
   }),
-}).server<ChatContext>(async (settings, { context }) => {
+}).server<ChatContext>(async (input, { context }) => {
+  const settings = withoutStatus(input);
   await personService.updateSettings(context.person.id, settings);
   return {
     saved: settings,

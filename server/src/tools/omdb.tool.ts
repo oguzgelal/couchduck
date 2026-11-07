@@ -1,6 +1,7 @@
 import { toolDefinition } from "@tanstack/ai";
 import { z } from "zod";
 import { omdbService } from "../services/omdb.service.js";
+import { withoutStatus, withStatus } from "./tool-status.js";
 
 const FALLBACK =
   "Use it only as a fallback when the TMDB tools can't find what you need. Results include IMDb, Rotten Tomatoes and Metacritic ratings when available.";
@@ -17,10 +18,10 @@ const omdbTool = (name: string, description: string, params: z.ZodRawShape) =>
   toolDefinition({
     name: `omdb_${name}`,
     description: `${description} ${FALLBACK}`,
-    inputSchema: z.object(params),
+    inputSchema: withStatus(params),
     lazy: true,
     replay: "safe",
-  }).server((input, context) => omdbService.get(input as Record<string, unknown>, context?.abortSignal));
+  }).server((input, context) => omdbService.get(withoutStatus(input), context?.abortSignal));
 
 export const omdbTools = [
   omdbTool("search", "Search OMDb movies, series and episodes by title, 10 results per page.", {

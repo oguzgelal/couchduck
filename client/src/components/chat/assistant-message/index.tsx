@@ -1,14 +1,10 @@
 import { parsePartialJSON, type UIMessage } from "@tanstack/ai-react";
 import { StyleSheet, View } from "react-native";
 import { space } from "../../../theme";
-import { MediaPart } from "../assistant-display/media/media-part";
-import { MediasPart } from "../assistant-display/media/medias-part";
-import { PersonPart } from "../assistant-display/person/person-part";
-import { PersonsPart } from "../assistant-display/person/persons-part";
 import { QuestionPart, type QuestionAnswer } from "./question-part";
 import { TextPart } from "./text-part";
 import { ThinkPart } from "./think-part";
-import { WeatherPart } from "./weather-part";
+import { ToolPart } from "./tool-part";
 
 type AssistantMessageProps = {
   message: UIMessage;
@@ -39,16 +35,8 @@ export function AssistantMessage({ message, canAnswer, onAnswer }: AssistantMess
             />
           );
         }
-        if (part.name === "get_weather" && part.state === "complete") {
-          return <WeatherPart key={part.id} weather={part.output} />;
-        }
-        if (part.state !== "complete") return null;
-        const input = part.input ?? parsePartialJSON(part.arguments);
-        if (part.name === "show_media") return <MediaPart key={part.id} media={input} />;
-        if (part.name === "show_medias") return <MediasPart key={part.id} list={input} />;
-        if (part.name === "show_person") return <PersonPart key={part.id} person={input} />;
-        if (part.name === "show_persons") return <PersonsPart key={part.id} list={input} />;
-        return null;
+        if (part.name === "ask_user_question") return null;
+        return <ToolPart key={part.id} part={part} isResponding={!canAnswer} />;
       })}
     </View>
   );

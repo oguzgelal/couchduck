@@ -28,7 +28,7 @@ export function FocusRow({ heading, children, footer }: FocusRowProps) {
 
 type FocusItemProps = {
   label: string;
-  onFocus: () => void;
+  onFocus?: () => void;
   style?: ViewStyle;
   ringStyle?: ViewStyle;
   ring: ReactNode;
@@ -44,7 +44,7 @@ export function FocusItem({ label, onFocus, style, ringStyle, ring, children }: 
       {...focusHandlers}
       onFocus={() => {
         focusHandlers.onFocus();
-        onFocus();
+        onFocus?.();
       }}
     >
       <Animated.View style={[style, scaleStyle]}>

@@ -1,6 +1,7 @@
 import { toolDefinition } from "@tanstack/ai";
 import { z } from "zod";
 import { tmdbService } from "../services/tmdb.service.js";
+import { withoutStatus, withStatus } from "./tool-status.js";
 
 type TmdbToolConfig = {
   name: string;
@@ -14,10 +15,10 @@ export const tmdbTool = ({ name, description, path, params = {}, lazy = true }: 
   toolDefinition({
     name: `tmdb_${name}`,
     description,
-    inputSchema: z.object(params),
+    inputSchema: withStatus(params),
     lazy,
     replay: "safe",
-  }).server((input, context) => tmdbService.get(path, input as Record<string, unknown>, context?.abortSignal));
+  }).server((input, context) => tmdbService.get(path, withoutStatus(input), context?.abortSignal));
 
 const IMAGE_URL_HINT =
   "Build image URLs as https://image.tmdb.org/t/p/<size>/<file_path>, with size w92, w185, w300, w500, w780, w1280 or original.";

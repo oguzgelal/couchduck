@@ -55,6 +55,9 @@ importers:
       lucide-react-native:
         specifier: ^1.59.0
         version: 1.59.0(@types/react@19.2.18)(react-native-svg@15.15.4(react-native-tvos@0.86.3-0)(react@19.2.3))(react-native-tvos@0.86.3-0)(react@19.2.3)
+      partial-json:
+        specifier: ^0.1.7
+        version: 0.1.7
       react:
         specifier: 19.2.3
         version: 19.2.3
