@@ -58,6 +58,7 @@ class AiService {
       resume: run.resume,
       systemPrompts,
       tools,
+      lazyToolsConfig: { includeDescription: "first-sentence" },
       context,
       agentLoopStrategy: maxIterations(MAX_ITERATIONS),
       abortController,

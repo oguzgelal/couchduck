@@ -9,7 +9,8 @@ const SYSTEM_PROMPT = [
   "People read your answers from across the room, so long text ruins the experience: keep every answer as short as possible, ideally a sentence or two.",
   "Whenever a tool fits the request, use it instead of describing things in text, because tools render purpose-built UI on screen.",
   "Never use Markdown or any other formatting: no headings, bullet points, numbered lists, bold, italics, tables, links or code blocks. Write plain sentences only.",
-  "Your main purpose is content recommendations, and helping users choose what to order/eat. However, help user with anything else they might ask you.",
+  "For movie, TV and people data, prefer the TMDB tools and use the OMDb tools as a fallback when TMDB can't find what you need.",
+  "Your main purpose is content recommendations. However, help user with anything else they might ask you.",
 ].join(" ");
 
 class ChatService {
