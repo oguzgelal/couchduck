@@ -1,5 +1,6 @@
 import { Image, StyleSheet, View } from "react-native";
 import { colors, radius, space } from "../../../../theme";
+import { FocusItem } from "../focus-row";
 import { MediaDetails } from "./media-details";
 import { Poster } from "./poster";
 import type { Media } from "./types";
@@ -14,7 +15,7 @@ export function MediaPart({ media }: { media: Media }) {
           style={[StyleSheet.absoluteFill, styles.backdrop]}
         />
       )}
-      {media.image && <Poster media={media} width={320} />}
+      <FocusItem label={media.title} ringStyle={styles.ring} ring={<Poster media={media} width={320} />} />
       <MediaDetails media={media} />
     </View>
   );
@@ -32,5 +33,8 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     opacity: 0.18,
+  },
+  ring: {
+    borderRadius: radius.md,
   },
 });

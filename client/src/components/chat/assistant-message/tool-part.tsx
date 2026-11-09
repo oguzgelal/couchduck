@@ -2,7 +2,7 @@ import type { UIMessage } from "@tanstack/ai-react";
 import { StyleSheet, View } from "react-native";
 import { parseStreamingArgs } from "../../../lib/streaming-args";
 import { space } from "../../../theme";
-import { AssistantDisplay, isDisplayTool } from "../assistant-display";
+import { isDisplayTool, renderDisplay } from "../assistant-display";
 import { ToolStatus } from "./tool-status";
 import { WeatherPart } from "./weather-part";
 
@@ -24,12 +24,15 @@ export function ToolPart({ part, isResponding }: ToolPartProps) {
   const state = statusState(part, isResponding);
   const isDisplay = isDisplayTool(part.name);
   const showStatus = typeof input?.status === "string" && !(isDisplay && state === "done");
+  const weather = part.name === "get_weather" && part.state === "complete" && <WeatherPart weather={part.output} />;
+  const display = isDisplay && renderDisplay(part.name, input, part.output, state === "running");
+  if (!showStatus && !weather && !display) return null;
 
   return (
     <View style={styles.container}>
       {showStatus && <ToolStatus text={input.status} state={state} />}
-      {part.name === "get_weather" && part.state === "complete" && <WeatherPart weather={part.output} />}
-      {isDisplay && <AssistantDisplay name={part.name} input={input} isStreaming={state === "running"} />}
+      {weather}
+      {display}
     </View>
   );
 }

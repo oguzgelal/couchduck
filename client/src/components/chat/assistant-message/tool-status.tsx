@@ -1,6 +1,7 @@
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Check, Ellipsis, X } from "lucide-react-native";
-import { colors, space, typography } from "../../../theme";
+import { colors, radius, space, typography } from "../../../theme";
 
 type ToolStatusProps = {
   text: string;
@@ -10,8 +11,14 @@ type ToolStatusProps = {
 const ICON_SIZE = 26;
 
 export function ToolStatus({ text, state }: ToolStatusProps) {
+  const [focused, setFocused] = useState(false);
+
   return (
-    <View style={styles.row}>
+    <Pressable
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      style={[styles.row, focused && styles.focused]}
+    >
       <View style={styles.icon}>
         {state === "running" && (
           <Ellipsis size={ICON_SIZE} color={colors.duck} strokeWidth={3} />
@@ -26,7 +33,7 @@ export function ToolStatus({ text, state }: ToolStatusProps) {
       <Text style={[typography.caption, state === "running" && styles.running]}>
         {text}
       </Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -34,7 +41,14 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
+    alignSelf: "flex-start",
     gap: space[3],
+    margin: -space[2],
+    padding: space[2],
+    borderRadius: radius.md,
+  },
+  focused: {
+    backgroundColor: colors.surface,
   },
   icon: {
     width: ICON_SIZE,

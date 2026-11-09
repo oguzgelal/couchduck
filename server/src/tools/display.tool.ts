@@ -1,5 +1,6 @@
 import { toolDefinition } from "@tanstack/ai";
 import { z } from "zod";
+import { tmdbService } from "../services/tmdb.service.js";
 import { withStatus } from "./tool-status.js";
 
 const imageUrl = (of: string) =>
@@ -43,6 +44,9 @@ const personProfile = {
 const media = {
   title: z.string().min(1),
   type: z.enum(["movie", "tv"]).optional(),
+  tmdbId: z.number().int().optional().meta({
+    description: "Its TMDB id. Together with type, its trailer is found automatically, so always set both when you have them",
+  }),
   image: imageUrl("the poster"),
   backdrop: imageUrl("a wide backdrop still"),
   year,
@@ -59,6 +63,14 @@ const media = {
   overview: z.string().optional().meta({ description: "The premise in one or two sentences, without spoilers" }),
   reason: reason("this title"),
   watchOn: z.array(z.string()).optional().meta({ description: "Streaming services carrying it in their country" }),
+  trailer: z
+    .string()
+    .regex(/^[\w-]{11}$/)
+    .optional()
+    .meta({
+      description:
+        "YouTube video ID of its official trailer, only when you already have one, e.g. the v= value of a YouTube link found with web_search. Without it, the trailer is looked up on TMDB from tmdbId",
+    }),
   cast: z.array(z.object(person)).max(8).optional().meta({ description: "Main cast, top billed first" }),
 };
 
@@ -70,17 +82,27 @@ const USE_WHAT_YOU_HAVE =
 
 const shown = () => ({ shown: true });
 
+type MediaInput = z.infer<z.ZodObject<typeof media>>;
+
+const findTrailers = (items: MediaInput[], signal?: AbortSignal) =>
+  Promise.all(
+    items.map(async ({ trailer, type, tmdbId }) => {
+      if (trailer || !type || !tmdbId) return trailer ?? null;
+      return (await tmdbService.trailer(type, tmdbId, signal).catch(() => undefined)) ?? null;
+    }),
+  );
+
 export const showMediaTool = toolDefinition({
   name: "show_media",
   description: `Show one movie or TV series on screen with its poster, details, ratings and cast. Use it every time you recommend or present a single title. ${USE_WHAT_YOU_HAVE} ${RULES}`,
   inputSchema: withStatus(media),
-}).server(shown);
+}).server(async (input, context) => ({ shown: true, trailers: await findTrailers([input], context?.abortSignal) }));
 
 export const showMediasTool = toolDefinition({
   name: "show_medias",
-  description: `Show several movies or TV series on screen as a row of posters the person browses with the remote, with details of the one in focus. Use it every time you recommend or present more than one title, instead of listing them in text. ${USE_WHAT_YOU_HAVE} ${RULES}`,
+  description: `Show several movies or TV series on screen as a row of posters the person browses with the remote, with details of the one in focus. Use it every time you recommend or present more than one title, instead of listing them in text. Always include each title's overview. ${USE_WHAT_YOU_HAVE} ${RULES}`,
   inputSchema: withStatus({ heading, items: z.array(z.object(media)).min(2).max(20) }),
-}).server(shown);
+}).server(async (input, context) => ({ shown: true, trailers: await findTrailers(input.items, context?.abortSignal) }));
 
 export const showPersonTool = toolDefinition({
   name: "show_person",

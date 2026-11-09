@@ -2,6 +2,8 @@ import { ServiceError } from "./service-error.js";
 
 const BASE_URL = "https://api.themoviedb.org/3";
 
+type TmdbVideo = { key: string; site: string; type: string; official?: boolean };
+
 class TmdbService {
   async get(pathTemplate: string, params: Record<string, unknown>, signal?: AbortSignal): Promise<unknown> {
     const token = process.env.TMDB_READ_ACCESS_TOKEN;
@@ -15,6 +17,19 @@ class TmdbService {
       throw new ServiceError(`TMDB responded with ${response.status}: ${body?.status_message ?? response.statusText}`);
     }
     return body;
+  }
+
+  async trailer(type: "movie" | "tv", id: number, signal?: AbortSignal): Promise<string | undefined> {
+    const body = (await this.get(`/${type}/{id}/videos`, { id }, signal)) as { results?: TmdbVideo[] };
+    return this.pickTrailer(body.results ?? []);
+  }
+
+  pickTrailer(videos: TmdbVideo[]): string | undefined {
+    const youtube = videos.filter((video) => video.site === "YouTube");
+    const rank = (video: TmdbVideo) => (video.type === "Trailer" ? 0 : 2) + (video.official ? 0 : 1);
+    return youtube
+      .filter((video) => video.type === "Trailer" || video.type === "Teaser")
+      .sort((a, b) => rank(a) - rank(b))[0]?.key;
   }
 
   url(pathTemplate: string, params: Record<string, unknown>): string {

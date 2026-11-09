@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { colors, space, typography } from "../../../../theme";
 import { CastRow } from "../person/cast-row";
 import { RatingsRow } from "./ratings-row";
+import { TrailerButton } from "./trailer-button";
 import type { Media } from "./types";
 
 const TYPE_LABELS = { movie: "Movie", tv: "TV series" } as const;
@@ -25,6 +26,7 @@ export function MediaDetails({ media }: { media: Media }) {
       {media.watchOn && media.watchOn.length > 0 && (
         <Text style={typography.callout}>Watch on {media.watchOn.join(", ")}</Text>
       )}
+      {media.trailer && <TrailerButton videoId={media.trailer} />}
       {media.cast && media.cast.length > 0 && <CastRow cast={media.cast} />}
     </View>
   );

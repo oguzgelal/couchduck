@@ -21,4 +21,17 @@ assert.equal(
   "https://api.themoviedb.org/3/movie/550?append_to_response=credits%2Cwatch%2Fproviders",
 );
 
+assert.equal(
+  tmdbService.pickTrailer([
+    { key: "teaser", site: "YouTube", type: "Teaser", official: true },
+    { key: "fan", site: "YouTube", type: "Trailer", official: false },
+    { key: "vimeo", site: "Vimeo", type: "Trailer", official: true },
+    { key: "official", site: "YouTube", type: "Trailer", official: true },
+    { key: "clip", site: "YouTube", type: "Clip", official: true },
+  ]),
+  "official",
+);
+
+assert.equal(tmdbService.pickTrailer([{ key: "clip", site: "YouTube", type: "Clip" }]), undefined);
+
 console.log("tmdb.service ok");

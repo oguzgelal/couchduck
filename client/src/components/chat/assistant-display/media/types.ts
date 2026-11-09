@@ -4,6 +4,7 @@ import type { Ratings } from "./ratings-row";
 export type Media = {
   title: string;
   type?: "movie" | "tv";
+  tmdbId?: number;
   image?: string;
   backdrop?: string;
   year?: number;
@@ -13,6 +14,7 @@ export type Media = {
   overview?: string;
   reason?: string;
   watchOn?: string[];
+  trailer?: string;
   cast?: Person[];
 };
 

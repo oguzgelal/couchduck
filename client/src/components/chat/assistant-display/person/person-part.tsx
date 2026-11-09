@@ -1,8 +1,11 @@
 import { StyleSheet, Text, View } from "react-native";
 import { colors, space, typography } from "../../../../theme";
+import { FocusItem } from "../focus-row";
 import { Avatar } from "./avatar";
 import { KnownForRow } from "./known-for-row";
 import type { PersonProfile } from "./types";
+
+const AVATAR_SIZE = 240;
 
 export function PersonPart({ person }: { person: PersonProfile }) {
   const facts = [person.role, person.born && `Born ${person.born}`, person.died && `Died ${person.died}`]
@@ -12,7 +15,11 @@ export function PersonPart({ person }: { person: PersonProfile }) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Avatar person={person} size={240} />
+        <FocusItem
+          label={person.name}
+          ringStyle={styles.ring}
+          ring={<Avatar person={person} size={AVATAR_SIZE} />}
+        />
         <View style={styles.text}>
           <Text style={typography.title2}>{person.name}</Text>
           {facts && <Text style={typography.callout}>{facts}</Text>}
@@ -45,5 +52,8 @@ const styles = StyleSheet.create({
   },
   reason: {
     color: colors.duck,
+  },
+  ring: {
+    borderRadius: AVATAR_SIZE / 2,
   },
 });
